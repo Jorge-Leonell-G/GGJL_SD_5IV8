@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 /**
  *
@@ -20,34 +21,40 @@ public class Server {
         
         System.out.println("----- SERVIDOR 5IV8 -----");
         
-        DatagramSocket server = new DatagramSocket(54487);
-        
-        byte [] receiveData = new byte [1024];
-        
-        byte [] sendData = new byte [1024];
+        DatagramSocket server = new DatagramSocket(50838);
+        Scanner sc = new Scanner(System.in);
         
         while(true){
             
+            byte[] receiveData = new byte[1024];
+            byte[] sendData = new byte[1024];
+            
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            
             server.receive(receivePacket);
-            
-            String sentence = new String(receivePacket.getData());
-            
-            System.out.println("Mensaje recibido: " + new String(receivePacket.getData()));
-            
             InetAddress ipaddress = receivePacket.getAddress();
             
-            int port = receivePacket.getPort();
-            String z = sentence.toUpperCase();
+            int puerto = receivePacket.getPort();
             
-            sendData = z.getBytes();
+            //ahora interpretamos el contenido (mensajes) enviados por parte del cliente
+            String clientData = new String(receivePacket.getData());
             
-            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,ipaddress, port);
+            System.out.println("\nCliente: " + clientData);
+            System.out.println("\nServidor: ");
             
+            String serverData = sc.nextLine();
+            sendData = serverData.getBytes();
+            
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ipaddress, puerto);
             server.send(sendPacket);
+            
+            if(serverData.equalsIgnoreCase("bye")){
+                System.out.println("Conexión terminada por el servidor");
+                break;
+            }
+            
         }
-        
+        server.close();
     }
+
     
 }
